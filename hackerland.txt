@@ -1,0 +1,65 @@
+#include <bits/stdc++.h>
+#define F first
+#define S second
+using namespace std;
+const int N=100000;
+const int M=200000;
+
+int n,m;
+int d[N+5],bm;
+long long b[M+70];
+pair <int,pair <int,int> > a[M+5];
+vector <pair <int,int> > v[N+5];
+
+void input(){
+    scanf("%d%d",&n,&m);
+    for (int i=0;i<m;i++)
+    scanf("%d%d%d",&a[i].S.F,&a[i].S.S,&a[i].F);
+}
+
+//DSU
+int fin(int x){ 
+    if (d[x]==x) return x;
+    return d[x]=fin(d[x]);
+}
+
+int dfs(int x,int fr){
+    int R=1;
+    for (int i=0;i<v[x].size();i++)
+    if (v[x][i].F!=fr){
+        int K=dfs(v[x][i].F,x);
+        b[v[x][i].S]+=1ll*K*(n-K);
+        R+=K;
+    }
+    return R;
+}
+
+void sol(){
+    sort(a,a+m); // this is O(M log M) but using index sort we can do this in O(M)
+    //MST 
+    for (int i=1;i<=n;i++) d[i]=i;
+    for (int i=0;i<m;i++)   
+    if (fin(a[i].S.F)!=fin(a[i].S.S)){
+        d[fin(a[i].S.F)]=fin(a[i].S.S);
+        v[a[i].S.F].push_back({a[i].S.S,a[i].F});
+        v[a[i].S.S].push_back({a[i].S.F,a[i].F});
+        bm=a[i].F;
+    }
+    dfs(1,1);
+    for (int i=0;i<bm;i++)
+        b[i+1]+=b[i]/2,
+        b[i]%=2;
+    while (b[bm]>1){
+        b[bm+1]=b[bm]/2;
+        b[bm]%=2;
+        bm++;
+    }
+    for (int i=bm;i>=0;i--) putchar('0'+b[i]);
+    putchar('\n');
+}
+
+int main() {
+    input();
+    sol();
+    return 0;
+}
